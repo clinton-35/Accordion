@@ -1,70 +1,102 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Accordion Component
 
-## Available Scripts
+This project is a React-based Accordion component that supports both single and multiple item selection. It demonstrates how to use React's state management to create an interactive accordion with customizable selection modes.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Single Selection Mode:** Only one accordion item can be expanded at a time.
+- **Multi Selection Mode:** Multiple accordion items can be expanded simultaneously.
+- Toggle between single and multi-selection modes with a button click.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Installation
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Clone the repository:
 
-### `npm test`
+git clone <repository-url>
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### `Navigate to the project directory`
 
-### `npm run build`
+cd accordion-project
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Install dependecies:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+npm install
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `Usage`
 
-### `npm run eject`
+To start the development server and view the component in action, run:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+npm start
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## `Implementation Details`
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### `Single Selection Mode`
+In single selection mode, only one accordion item can be expanded at a time. This is controlled by the selected state. When an item is clicked, the handleSingleSelection function checks if the clicked item is already selected. If it is, the item is collapsed by setting selected to null. Otherwise, the clicked item is expanded by updating the selected state with the item's ID.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+const [selected, setSelected] = useState(null);
 
-## Learn More
+function handleSingleSelection(getCurrentId) {
+    setSelected(getCurrentId === selected ? null : getCurrentId);
+}
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### `Multi Selection Mode`
+In multi-selection mode, multiple accordion items can be expanded simultaneously. This is managed by the mutiple state, which is an array storing the IDs of the currently expanded items. The handleMultiSelection function adds or removes the clicked item's ID from the mutiple array, allowing multiple items to be expanded at once.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+const [mutiple, setMultiple] = useState([]);
 
-### Code Splitting
+function handleMultiSelection(getCurrentId) {
+    let cpyMultiple = [...mutiple];
+    const findIndexOfCurrentId = cpyMultiple.indexOf(getCurrentId);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+    if (findIndexOfCurrentId === -1) cpyMultiple.push(getCurrentId);
+    else cpyMultiple.splice(findIndexOfCurrentId, 1);
 
-### Analyzing the Bundle Size
+    setMultiple(cpyMultiple);
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### `Toggle Between Modes`
 
-### Making a Progressive Web App
+A button is provided to toggle between single and multi-selection modes. The enableMultiSelection state determines which mode is active. Depending on this state, either handleSingleSelection or handleMultiSelection is triggered when an item is clicked.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+const [enableMultiSelection, setEnableMulttiSelection] = useState(false);
 
-### Advanced Configuration
+<button onClick={() => setEnableMulttiSelection(!enableMultiSelection)}>
+    Enable multi-selection
+</button>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
 
-### Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Rendering the Accordion
 
-### `npm run build` fails to minify
+The accordion items are rendered based on the data imported from data.js. Each item is displayed with a title, and its content is conditionally rendered based on the selection mode and the current selection state.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+return (
+    <div className="wrapper">
+        <div className="accordion">
+            {data && data.length > 0 ? data.map(dataItem => (
+                <div className="item" key={dataItem.id}>
+                    <div onClick={enableMultiSelection 
+                        ? () => handleMultiSelection(dataItem.id) 
+                        : () => handleSingleSelection(dataItem.id)} className="title">
+                        <h3>{dataItem.question}</h3>
+                        <span>+</span>
+                    </div>
+                    {selected === dataItem.id || mutiple.indexOf(dataItem.id) !== -1 ? (
+                        <div className="content">{dataItem.answer}</div>
+                    ) : null}
+                </div>
+            )) : <div>No data found!</div>}
+        </div>
+    </div>
+);
+
+
+## Customization
+
+*  The component can be easily customized by modifying the CSS in index.css.
+*  The data can be altered by updating the data.js file.
+
+## License
+
+This project is licensed under the MIT License. Feel free to use and modify it as you see fit.
